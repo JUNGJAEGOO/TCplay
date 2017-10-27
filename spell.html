@@ -1,0 +1,82 @@
+<html>
+<body>
+
+<input type="text" id="input"></input>
+<input type="text" id="count"></input>
+<button onclick="spell()">검사</button>
+<br> 오타 바꾼 결과 : <span id="resultDivContainer"></span>
+
+<br> <button id="but" onclick="x()">아이아스</button>
+</body>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+function spell(){
+var info = new Object();
+info.query = document.getElementById("input").value;
+info.maxSuggestion = parseInt(document.getElementById("count").value);
+
+var jsondata = JSON.stringify(info);
+
+    var resultDiv = $("#resultDivContainer");
+
+    $.ajax({
+        url: "http://alpha-api-spell-checker.cloud.toast.com/spell-checker/v1.0/appkeys/fYJNsOwdNjsiG9Cx/corrections",
+        type: "POST",
+        data: jsondata,
+        dataType: "json",
+        success: function (result) {
+            switch (result) {
+                case true:
+                    processResponse(result);
+                    break;
+                default:
+					
+					//console.log(result.body);
+					if( result.body.errata.length > 0){
+					
+						if (result.body.errata[0].suggestions.length > 0 ){
+							var final = result.body.errata[0].suggestions[0].suggestion;
+							//console.log(result.body.errata[0].suggestions[0].suggestion);
+							document.getElementById("resultDivContainer").innerHTML =  final;
+						}else if ( result.body.errata[0].suggestions.length == 0 ){
+							document.getElementById("resultDivContainer").innerHTML = "죄송합니다. 다시 입력해 주세요.";
+						}
+					
+					}else{
+						document.getElementById("resultDivContainer").innerHTML = "바꿀 수 없거나 정확 합니다. 다시 입력해 주세요.";
+					}
+					
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+        }
+    });
+};
+</script>
+<script type="text/javascript">
+function x(){
+
+  
+  
+  $.ajax({ 
+   type: "GET",
+   url: "http://alpha-api-gw.cloud.toast.com/helloworld/hell",
+   contentType: "application/json",
+   success: function(data, textStatus, request){
+        alert(data.toString()); //This prints the response with the header.
+
+   },
+   error: function(){
+     alert('fail');
+
+   }
+  });
+}
+
+</script>
+
+
+</html>

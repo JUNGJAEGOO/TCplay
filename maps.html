@@ -1,0 +1,143 @@
+<html>
+<meta charset="utf-8"/>
+<head>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript">
+StaticMap={};
+
+//dev : 133.186.139.183
+//alpha : 133.186.148.107
+//beta : 
+//real : api-maps.cloud.toast.com
+
+StaticMap.authentification = function (divId, appkey, param) {
+	
+	var apiUrl = 'https://alpha-api-maps.cloud.toast.com';
+	var xhr = new XMLHttpRequest();
+    xhr.open("GET" , encodeURI(apiUrl+'/maps/v1.0/appkeys/' + appkey + '/static-maps' + '?' + param) , false);
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4)
+        {
+        	if(xhr.status == 200){
+        		data = JSON.parse(xhr.responseText);
+        		staticMapCallback(divId, data);
+        	}else{
+        		alert("Internal Server Error");
+        	}
+        		
+    	}
+    }
+    xhr.send();
+};
+
+
+function staticMapCallback(divId, data){
+	
+	if(data.header.isSuccessful == true){
+		var url = data.result.url;
+		document.getElementById(divId).src = url;
+	}else{
+		alert(data.header.resultMessage);
+	}
+	
+
+} 
+</script>
+
+</head>
+<body>
+<input type="button" onclick="location.href='http://10.161.243.32/v1/AUTH_9c29557694c14ba2a665ff62e283c463/dev/folder1/메뉴바 액티브.jpg'" value="다운로드">
+<br><br><button type="submit" onclick="javascript:UserAction()">Search</button>
+
+<script type="text/javascript" src="https://alpha-api-maps.cloud.toast.com/maps/js/v1.0/map.js"></script>
+<script>
+	Map.authentification("AVUusK71T19EADdX");
+</script>
+
+<br><br><div id="div_map" style="width:50%; height: 300px"></div>
+
+
+<br> 지도를 움직인 횟수: <span id="result" style="height:50px; width:50px"></span> <button id="countreset" onclick="reset()">초기화</button>
+<br><br> <button id="drawstart" onclick="drawstart()">그리기 시작</button> <button id="drawend" onclick="drawend()">그리기종료</button>
+
+<br><br> <img id='staticMapImg' alt="" src="">
+<br> <span id="staticMap"></span>
+<br><input type="text" id="input"></input> <button onclick="getXY()">좌표 얻기</button>
+<br> <span id="searchresult"></span> 
+
+<script type="text/javascript">
+
+(function init(){
+StaticMap.authentification('staticMapImg','AVUusK71T19EADdX','x=170000&y=500000&width=970&height=300&level=2&maptype=i&mx=158323&my=266836&txt=');
+})()
+
+function getXY(){
+	var input = document.getElementById("input").value;
+	document.getElementById("searchresult").innerHTML ="";
+	$.getJSON('https://alpha-api-maps.cloud.toast.com/maps/v1.0/appkeys/AVUusK71T19EADdX/coordinates?query='+input, function(data) {
+	 StaticMap.authentification('staticMapImg','AVUusK71T19EADdX','x='+data.address.adm[0].posx+'&y='+data.address.adm[0].posy+'&width=970&height=300&level=10&maptype=i&mx=158323&my=266836&txt=');
+	
+		for(var i = 0 ; i<data.address.adm.length;i++){
+		var adr = data.address.adm[i].address;
+		var POSx = data.address.adm[i].posx;
+		var POSy = data.address.adm[i].posy;
+		//document.getElementById("adr").innerHTML = adr;
+		//document.getElementById("x").innerHTML = POSx;
+		//document.getElementById("y").innerHTML = POSy;
+		document.getElementById("searchresult").innerHTML = document.getElementById("searchresult").innerHTML+"<br>지번: "+adr+"<br>x좌표: "+POSx+"<br>y좌표: "+POSy; 
+		}
+	});
+}
+</script>
+
+<script type="text/javascript">
+	THINKMAP.initMap("div_map", 165406, 500198, 11, init, 2, 'i');
+	//THINKMAP.featureDrawing('lineDraw', {StrokeColor:'red',strokeWidth:5}, init);
+	function init(){
+		//alert('init!');
+	}
+	
+    //지도에 move 이벤트를 등록 한다.
+    THINKMAP.addMapListener('movestart', mapEvent_cb);
+	var res = document.getElementById("result");
+	var x = 0;
+	res.innerHTML = x;
+    //지도 이벤트 발생 시 콜백 함수
+    function mapEvent_cb(map){
+		x++;
+		res.innerHTML = x;
+        console.log("event callback!");
+		//res.innerHTML = x;
+    }	
+	
+	var reset = function(){
+	var res = document.getElementById("result");
+	x = 0;
+	res.innerHTML = 0;
+	}
+	
+	function drawstart(){
+	    var style = {
+        strokeColor: '#fff123',
+        strokeWidth: 5,
+        strokeDashstyle: 'solid',       
+        strokeOpacity: 0.8,
+        fillColor: 'blue',
+        fillopacity: 1
+		};
+		THINKMAP.featureDrawing('lineDraw', style , init);
+	}
+	
+	function drawend(){
+		THINKMAP.featureDrawingCancel();
+	}
+
+</script>
+
+
+</body>
+
+
+
+</html>

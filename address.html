@@ -1,0 +1,166 @@
+<html>
+<meta charset="utf-8"/>
+<head>
+<style type="text/css">
+
+.panel>.list-group {
+	max-height: 500px;
+}
+
+#address-search {
+	padding: 0 30px 50px;
+}
+
+#popup-example form {
+	background-color: #4b96e6;
+	margin-bottom: 15px;
+	padding: 17px 17px 7px 17px;
+}
+
+#popup-example .form-group {
+	padding: 0 0 10px 0;
+}
+
+#zip-code {
+	width: 90px;
+}
+
+#notice-popup {
+	position: absolute;
+	background: white;
+	z-index: 100;
+}
+
+.example {
+	left: 405px;
+}
+
+.modal.notice .modal-dialog {
+	width: 450px;
+	top: 10px;
+	left: 10px;
+	margin: 0;
+	left: 10px;
+}
+
+.modal.notice .modal-body {
+	line-height: 23px
+}
+
+.checkbox input {
+	margin-top: inherit;
+}
+
+</style>
+<!--<link rel="stylesheet" type="text/css" href="https://alpha-product.cloud.toast.com/res/css/tc_theme.css">-->
+<link rel="stylesheet" type="text/css" href="https://alpha-product.cloud.toast.com/res/css/ui-psf.css">
+<link rel="stylesheet" type="text/css" href="https://alpha-product.cloud.toast.com/res/bootstrap-3.3.4/css/bootstrap.css">
+
+</head>
+<body>
+		<div id="popup-example" style="width:800px; margin-left:50px">
+			<h4 class="kv_setting_title">
+				팝업 예제
+			</h4>
+			<hr>
+			<form class="form-horizontal">
+				<div class="form-inline form-group">
+					<input type="text" class="form-control" id="zip-code" ng-model="zipCode" placeholder="새 우편번호" style="width:200px; margin-left:20px">
+					<button type="button" class="btn btn-default" onclick="popupExample()">우편번호 찾기</button>
+				</div>
+				<div class="form-inline form-group">
+					<input type="text" class="form-control" id="road" placeholder="도로명 주소" ng-model="roadAddress" style="width:350px; margin-left:20px"> 
+					<input type="text" class="form-control" id="jibun" placeholder="지번 주소" ng-model="jibunAddress" style="width:350px">
+				</div>
+			</form>
+		</div>
+
+</body>
+
+<script type="text/javascript">
+function ToastCloudAddressSearch(appKey, callback, url) {
+    var self = this;
+    var popupUrl = url;
+    var urlTester = new RegExp(/http\:\/\/.*api-address\.cloud\.toast\.com/);
+    
+    if (null == popupUrl) {
+        popupUrl = 'http://alpha-api-address.cloud.toast.com/address/v1/popup';
+    }
+    
+    var toPopupOptionString = function(options) {
+        var str = '';
+        for (var key in options) {
+            str += key
+            str += '=';
+            str += options[key];
+            str += ',';
+        }
+        
+        return str;
+    };
+    
+    this.receiveMessage = function(e) {
+        /*
+        if (false == urlTester.test(e.origin)) {
+            return;
+        }
+        */
+        
+        callback(e.data);
+        
+        self.popup.close();
+    };
+    
+    this.open = function(options) {
+        var left = options ? options.left : null;
+        if (null == left) {
+            left = (screen.width / 2) - 300;
+        }
+        
+        var top = options ? options.top : null;
+        if (null == top) {
+            top = (screen.height / 2) - 325;
+        }
+        
+        var options = {
+            toolbar: 'no',
+            location: 'no',
+            directories: 'no',
+            status: 'no',
+            menubar: 'no',
+            scrollbars: 'no',
+            resizable: 'no',
+            copyhistory: 'no',
+            width: 650,
+            height: 650,
+            top: top,
+            left: left
+        }
+        
+        var popup = self.popup = window.open('', '_blank', toPopupOptionString(options));
+        popup.document.write('<html><head><body><iframe frameborder="0" id="' + appKey + '" src="' + popupUrl + '/' + appKey + '"></iframe></body></html>');
+        
+        var body = popup.document.body;
+        body.style.margin = 0;
+        
+        var iframe = popup.document.getElementById(appKey);
+        iframe.style.border = 0;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        
+        popup.addEventListener('message', self.receiveMessage, false);
+    };
+}
+
+function popupExample() {
+    var exampleCallBack = function(data) {
+        document.getElementById('zip-code').value = data.zipCode;
+        document.getElementById('road').value = data.roadAddress + ' ' + data.roadAddressExtra;;
+        document.getElementById('jibun').value = data.jibunAddress;
+    };
+ 
+    var popup = new ToastCloudAddressSearch('6mHVp0fGqlnLfcYe', exampleCallBack);
+    popup.open();
+}
+</script>
+</html>

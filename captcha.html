@@ -1,0 +1,82 @@
+<html>
+<meta charset="UTF-8">
+<head>
+<title>CAPTCHA 예제</title>
+
+<body>
+<h2> CAPCHA 예제 </h2>
+<hr>
+<br>
+<div style="background-color:#88ccdd; border: 1px solid black; width:300px; margin-left:20px">
+<br> <div style="" align="center"><strong>아래와 동일한 숫자를 입력 하세요.</strong></div> <br><br>
+<img src="#" id="cap" style="margin-left:50px"></img> <br>
+<input type="text" style="margin-left:20px; margin-bottom:20px; padding:10px" id="submit"/>
+<button style="padding:10px; margin-left:10px" onclick="ensure()">제출</button>
+</div>
+</body>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+var kkey;
+function imageGen(){
+
+$.ajax({
+url : "https://alpha-api-captcha.cloud.toast.com/captcha/v1.0/appkeys/ifsXpdCIU98wkELB/keys",
+type : "POST",
+dataType: "json",
+async:false,
+contentType: "application/json",
+        success: function (result) {
+            switch (result) {
+                case true:
+                    processResponse(result);
+                    break;
+                default:
+					var a = result.key.toString();
+					//console.log(a);
+					//console.log("https://alpha-api-captcha.cloud.toast.com/captcha/v1.0/keys/"+a+"/img");
+					document.getElementById("cap").src = "https://alpha-api-captcha.cloud.toast.com/captcha/v1.0/keys/"+a+"/img";
+					
+					kkey = a;
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+        } 
+})
+};
+imageGen();
+console.log(kkey);
+</script>
+
+<script type="text/javascript">
+function ensure(){
+
+var ans = document.getElementById("submit").value;
+	console.log(kkey);
+  $.ajax({ 
+   type: "GET",
+   url: "https://alpha-api-captcha.cloud.toast.com/captcha/v1.0/appkeys/ifsXpdCIU98wkELB/keys/"+kkey+"/verification?answer="+ans,
+   contentType: "application/json",
+   success: function(data, textStatus, request){
+		if ( data.header.successful == true ){
+        alert("확인 되었습니다."); //This prints the response with the header.
+		window.location.href="./signIn.html";
+		console.log(data);
+		document.getElementById("submit").value="";
+		}
+		else{
+		alert("다시 입력하세요.");
+		document.getElementById("submit").value="";
+		imageGen();
+		}
+   },
+   error: function(){
+     alert('fail');
+
+   }
+  });
+}
+</script>
+</html>

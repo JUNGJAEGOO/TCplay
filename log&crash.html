@@ -1,0 +1,147 @@
+<html>
+<meta charset="UTF-8">
+<head>
+<title>실험중</title>
+<style type="text/css">
+#butt {
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-top: 20px;
+	padding: 10px;
+}
+</style>
+</head>
+<body>
+
+<h2>로그 & 크래시 실험</h2>
+<hr>
+보내고 싶은 로그 : <input type="text" id="text"></input>
+<button onclick="log(document.getElementById('text').value)">서버에 로그 보내기</button>
+<br><br> 
+
+<div  style="background-color:#88bbdd ; border:0px solid black; width:480px; height:300px">
+<div style="background-color:#ff9955" align="center"><strong>계산기</strong></div>
+<input type="text" placeholder="x값" id="x" style="height:50px; width:100px; margin-left:10px; margin-top:50px"></input> 연산자 
+<input type="text" placeholder="y값" id="y" style="height:50px; width:100px; margin-top:50px"></input> = 
+<input id="divresult" type="text" readonly="readonly" placeholder="나눈 결과" style="height:50px; margin-top:50px"></input> 
+<br><br> <button id="butt" onclick="div()" style="margin-left:70px">나누기</button> <button id="butt" onclick="multiply()">곱하기</button> 
+         <button id="butt" onclick="plus()">더하기</button> <button id="butt" onclick="minus()">빼기</button>
+</div>
+<br><br>
+
+<div style="float:left; border:4px solid gray; width:350px; height:300px">
+<div style="background-color:#99cccc; height:50px" align="center"><strong>당신의 질의값</strong></div>
+<div id="query" style="word-wrap:break-word"></div>
+</div>
+<div style="float:left; border:4px solid gray; width:350px; height:300px">
+<div style="background-color:#99ccff; height:50px" align="center"><strong>서버의 응답값</strong></div>
+<div id="result" style="word-wrap:break-word;"></div>
+</div>
+
+
+</body>
+
+<script type="text/javascript">
+function div(){
+var x = parseInt(document.getElementById("x").value);
+var y = parseInt(document.getElementById("y").value);
+
+if ( y == 0 ) {
+alert("0으로 나누지 마십시오!");
+log("0 나누기 오류.");
+return;
+}
+var result = x / y;
+if ( isNaN(result) ){
+alert("피연산자에는 숫자만을 입력해 주십시오!");
+log("숫자가 아닌 피연산자 입력 오류.");
+}
+document.getElementById("divresult").value = result;
+}
+
+function plus(){
+var x = parseInt(document.getElementById("x").value);
+var y = parseInt(document.getElementById("y").value);
+
+var result = x + y;
+if ( isNaN(result) ){
+alert("피연산자에는 숫자만을 입력해 주십시오!");
+log("숫자가 아닌 피연산자 입력 오류.");
+}
+document.getElementById("divresult").value = result;
+}
+
+function minus(){
+var x = parseInt(document.getElementById("x").value);
+var y = parseInt(document.getElementById("y").value);
+
+var result = x - y;
+if ( isNaN(result) ){
+alert("피연산자에는 숫자만을 입력해 주십시오!");
+log("숫자가 아닌 피연산자 입력 오류.");
+}
+document.getElementById("divresult").value = result;
+}
+
+function multiply(){
+var x = parseInt(document.getElementById("x").value);
+var y = parseInt(document.getElementById("y").value);
+
+var result = x * y;
+if ( isNaN(result) ){
+alert("피연산자에는 숫자만을 입력해 주십시오!");
+log("숫자가 아닌 피연산자 입력 오류.");
+}
+document.getElementById("divresult").value = result;
+}
+</script>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+function log(message){
+
+console.log(message);
+var data = {
+    "projectName": "AfxeqfFCkE0OmERH",
+    "projectVersion": "1.0.0",
+    "logVersion": "v2",
+    "body": message,
+    "logSource": "http",
+    "logType": "nelo2-http"
+}
+
+var jsondata = JSON.stringify(data);
+document.getElementById("query").innerHTML = jsondata;
+console.log(jsondata);
+
+ $.ajax({
+        url: "http://10.161.241.68/v2/log",
+        type: "POST",
+        data: jsondata,
+		contentType: "application/json",
+        dataType: "json",
+        success: function (result) {
+            switch (result) {
+                case true:
+                    processResponse(result);
+                    break;
+                default:
+					var res = JSON.stringify(result);
+					 
+					document.getElementById("result").innerHTML = res;
+					console.log(result);
+					
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+        }
+    });
+}
+
+
+
+</script>
+<html>
